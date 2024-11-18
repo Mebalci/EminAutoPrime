@@ -61,13 +61,16 @@ namespace EminAutoPrime.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Resim dosyası yüklendi mi kontrol edin
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage); 
+                }
+
                 if (kampanya.ResimDosyasi != null && kampanya.ResimDosyasi.Length > 0)
                 {
                     string wwwRootPath = _hostEnvironment.WebRootPath;
                     string uploadsFolder = Path.Combine(wwwRootPath, "uploads");
-
-                    // uploads klasörünü oluşturun eğer yoksa
+                                        
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);

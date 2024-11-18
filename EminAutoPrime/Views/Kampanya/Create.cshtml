@@ -3,6 +3,7 @@
 <div class="container-fluid justify-content-center align-items-center -background" style="min-height: 100vh; padding-top: 100px;">
     <h1 class="display-4 text-primary mb-4">Yeni Kampanya Ekle</h1>
     <form asp-action="Create" enctype="multipart/form-data" class="shadow p-5 bg-white rounded">
+        @Html.AntiForgeryToken()
         <div class="mb-4">
             <label asp-for="KampanyaBasligi" class="form-label h5 text-dark"></label>
             <input asp-for="KampanyaBasligi" class="form-control border-primary" placeholder="Kampanya Başlığı Giriniz" />

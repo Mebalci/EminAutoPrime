@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EminAutoPrime", "EminAutoPrime\EminAutoPrime.csproj", "{1C1A3114-2486-40F2-8565-A33096627124}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EminAutoPrime", "EminAutoPrime\EminAutoPrime.csproj", "{1C1A3114-2486-40F2-8565-A33096627124}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

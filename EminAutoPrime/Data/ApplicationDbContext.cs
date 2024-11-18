@@ -10,7 +10,6 @@ namespace EminAutoPrime.Data
             : base(options)
         {
         }
-
         public DbSet<EminAutoArac> EminAutoAraclar { get; set; }
         public DbSet<EminAutoServis> EminAutoServisler { get; set; }
         public DbSet<Kampanya> Kampanyalar { get; set; }

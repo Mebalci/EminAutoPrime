@@ -1,6 +1,9 @@
 using EminAutoPrime.Data;
+using EminAutoPrime.Utilities;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EminAutoPrime
 {
@@ -10,32 +13,42 @@ namespace EminAutoPrime
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Veri taban� ba�lant� dizesini al ve ApplicationDbContext'i yap�land�r
+            // Veri tabanı bağlantı dizesini al ve ApplicationDbContext'i yapılandır
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            // Identity yap�land�rmas�
+            // Identity yapılandırması
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = false; // E-posta onay� gerekmedi�i i�in false yap�yoruz
+                options.SignIn.RequireConfirmedAccount = false; // E-posta onayı gerekmediği için false yapıyoruz
             })
-            .AddRoles<IdentityRole>()  // Rolleri eklemek i�in bu sat�r� ekleyin
+            .AddRoles<IdentityRole>()  // Rolleri eklemek için bu satırı ekleyin
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            // Geli�tirici sayfa hata filtresi
+            // Geliştirici sayfa hata filtresi
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // MVC yap�land�rmas�
+            // MVC yapılandırması
             builder.Services.AddControllersWithViews();
+
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 10485760;
+            });
 
             var app = builder.Build();
 
-            // Rolleri ve admin kullan�c�y� olu�tur
+            // Rolleri ve admin kullanıcıyı oluştur
             await CreateRolesAndAdminUserAsync(app);
 
-            // HTTP iste�i yap�land�rmas�
+            // **Ek olarak, Rolleri Seed Etmek için RoleInitializer ekliyoruz**
+            var scope = app.Services.CreateScope();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            await RoleInitializer.SeedRoles(roleManager);
+
+            // HTTP isteği yapılandırması
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
@@ -59,14 +72,14 @@ namespace EminAutoPrime
 
             app.Run();
         }
-        
+
         private static async Task CreateRolesAndAdminUserAsync(WebApplication app)
         {
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-                                
+
                 string[] roles = { "Admin", "ServisCalisani", "Musteri" };
 
                 foreach (var role in roles)
@@ -81,7 +94,7 @@ namespace EminAutoPrime
                 if (adminUser == null)
                 {
                     adminUser = new IdentityUser { UserName = "admin@eminauto.com", Email = "admin@eminauto.com" };
-                    var result = await userManager.CreateAsync(adminUser, "Admin@123");  // G��l� bir �ifre belirleyin
+                    var result = await userManager.CreateAsync(adminUser, "Admin@123");  // Güçlü bir şifre belirleyin
 
                     if (result.Succeeded)
                     {
@@ -89,7 +102,7 @@ namespace EminAutoPrime
                     }
                     else
                     {
-                        // Hatalar� loglay�n veya detayl� bilgi al�n
+                        // Hataları loglayın veya detaylı bilgi alın
                         foreach (var error in result.Errors)
                         {
                             Console.WriteLine(error.Description);
