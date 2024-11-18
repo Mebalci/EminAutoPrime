@@ -1,0 +1,62 @@
+﻿@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Kayıt Ekranı";
+}
+
+<div class="container-fluid d-flex justify-content-center align-items-center login-background" style="min-height: 100vh;">
+    <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px; margin-top: 100px; background-color: #00d084;">
+
+        <h2 class="text-center text-dark mb-4">Yeni Hesap Oluşturun</h2>
+
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="Input.Email">E-posta</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" type="password" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.Password">Şifre</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" class="form-control" type="password" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.ConfirmPassword">Şifreyi Onaylayın</label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" class="btn btn-dark w-100 mb-3" style="height: 50px;">Kayıt Ol</button>
+        </form>
+
+        <div class="text-center my-3">
+            <p class="text-white">Diğer Kayıt Seçenekleri</p>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-outline-light me-2" style="color: black; border-color: black;"><i class="fab fa-google"></i> Google</button>
+                <button class="btn btn-outline-light" style="color: black; border-color: black;"><i class="fab fa-apple"></i> Apple</button>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <p style="color: black;">Zaten bir hesabınız var mı? <a asp-page="./Login" class="text-white">Giriş Yap</a></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    .login-background {
+        background-image: url('/img/carousel-1.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+</style>

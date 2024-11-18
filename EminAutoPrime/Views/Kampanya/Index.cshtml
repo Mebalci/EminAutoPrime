@@ -1,0 +1,66 @@
+﻿@model IEnumerable<EminAutoPrime.Models.Kampanya>
+
+@{
+    ViewData["Title"] = "Kampanya Listesi";
+}
+
+<div class="container-fluid justify-content-center align-items-center -background" style="min-height: 100vh; padding-top: 100px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4 text-primary">Kampanya Listesi</h1>
+        <a asp-action="Create" class="btn btn-success btn-lg rounded-pill shadow-sm">
+            <i class="fas fa-plus"></i> Yeni Kampanya Ekle
+        </a>
+    </div>
+
+    <table class="table table-bordered table-hover shadow-sm">
+        <thead class="custom-table-header">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.KampanyaBasligi)</th>
+                <th>@Html.DisplayNameFor(model => model.KampanyaAciklamasi)</th>
+                <th>@Html.DisplayNameFor(model => model.BaslangicTarihi)</th>
+                <th>@Html.DisplayNameFor(model => model.BitisTarihi)</th>
+                <th>@Html.DisplayNameFor(model => model.GorselYolu)</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody class="custom-table-body">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.KampanyaBasligi)</td>
+                    <td>@Html.DisplayFor(modelItem => item.KampanyaAciklamasi)</td>
+                    <td>@item.BaslangicTarihi?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.BitisTarihi?.ToString("dd/MM/yyyy")</td>
+                    <td><img src="@item.GorselYolu" alt="Kampanya Görseli" style="width: 100px; height: auto;" /></td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.KampanyaID" class="btn btn-warning btn-sm">Düzenle</a>
+                        <a asp-action="Delete" asp-route-id="@item.KampanyaID" class="btn btn-danger btn-sm">Sil</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .-background {
+        background-image: url('/img/carousel-1.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .custom-table-header {
+        background-color: #007b50; 
+        color: white; 
+    }
+
+    .custom-table-body {
+        background-color: white;
+        color: black; 
+    }
+
+        .custom-table-body td {
+            color: black;
+        }
+</style>

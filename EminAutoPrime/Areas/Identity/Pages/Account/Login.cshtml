@@ -1,0 +1,65 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Giriş Ekranı";
+}
+
+<div class="container-fluid d-flex justify-content-center align-items-center login-background" style="min-height: 100vh;">
+    <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px; margin-top: 100px; background-color: #00d084;">
+
+        <h2 class="text-center text-dark mb-4">Hesabınıza Giriş Yapın</h2>
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="Mail/Kullanıcı Adı" />
+                <label asp-for="Input.Email">Mail</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" type="password" autocomplete="current-password" placeholder="Şifre" />
+                <label asp-for="Input.Password">Şifre</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex text-dark justify-content-between mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="Input.RememberMe" />
+                    <label class="form-check-label" asp-for="Input.RememberMe">Beni Hatırla</label>
+                </div>
+                <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none text-dark">Şifremi Unuttum</a>
+            </div>
+
+            <button id="login-submit" type="submit" class="btn btn-dark w-100 mb-3" style="height: 50px;">Giriş Yap</button>
+        </form>
+
+        <div class="text-center my-3">
+            <p class="text-white">Diğer Giriş Seçenekleri</p>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-outline-light me-2" style="color: black; border-color: black;"><i class="fab fa-google"></i> Google</button>
+                <button class="btn btn-outline-light" style="color: black; border-color: black;"><i class="fab fa-apple"></i> Apple</button>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <p style="color:black;">Kullanıcı Hesabın Yok Mu? <a asp-page="./Register" class="text-white">Kayıt Ekranına Git</a></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    
+    .login-background {
+        background-image: url('/img/carousel-1.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+</style>

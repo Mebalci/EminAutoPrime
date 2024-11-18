@@ -1,0 +1,44 @@
+﻿@model EminAutoPrime.Models.Kampanya
+
+<div class="container-fluid justify-content-center align-items-center -background" style="min-height: 100vh; padding-top: 100px;">
+    <h1 class="display-4 text-primary mb-4">Yeni Kampanya Ekle</h1>
+    <form asp-action="Create" enctype="multipart/form-data" class="shadow p-5 bg-white rounded">
+        <div class="mb-4">
+            <label asp-for="KampanyaBasligi" class="form-label h5 text-dark"></label>
+            <input asp-for="KampanyaBasligi" class="form-control border-primary" placeholder="Kampanya Başlığı Giriniz" />
+            <span asp-validation-for="KampanyaBasligi" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="KampanyaAciklamasi" class="form-label h5 text-dark"></label>
+            <textarea asp-for="KampanyaAciklamasi" class="form-control border-primary" rows="3" placeholder="Kampanya Açıklaması Giriniz"></textarea>
+            <span asp-validation-for="KampanyaAciklamasi" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <label asp-for="BaslangicTarihi" class="form-label h5 text-dark"></label>
+                <input asp-for="BaslangicTarihi" class="form-control border-primary" type="date" />
+                <span asp-validation-for="BaslangicTarihi" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-4">
+                <label asp-for="BitisTarihi" class="form-label h5 text-dark"></label>
+                <input asp-for="BitisTarihi" class="form-control border-primary" type="date" />
+                <span asp-validation-for="BitisTarihi" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="ResimDosyasi" class="form-label h5 text-dark"></label>
+            <input asp-for="ResimDosyasi" type="file" class="form-control border-primary" />
+            <span asp-validation-for="ResimDosyasi" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 py-2 shadow">
+            <i class="fas fa-save"></i> Kaydet
+        </button>
+        <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-5 py-2 shadow">
+            <i class="fas fa-arrow-left"></i> Listeye Geri Dön
+        </a>
+    </form>
+</div>
