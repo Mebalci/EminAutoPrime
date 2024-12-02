@@ -18,8 +18,8 @@
                 <th>@Html.DisplayNameFor(model => model.KampanyaBasligi)</th>
                 <th>@Html.DisplayNameFor(model => model.KampanyaAciklamasi)</th>
                 <th>@Html.DisplayNameFor(model => model.BaslangicTarihi)</th>
-                <th>@Html.DisplayNameFor(model => model.BitisTarihi)</th>
-                <th>@Html.DisplayNameFor(model => model.GorselYolu)</th>
+                <th>@Html.DisplayNameFor(model => model.BitisTarihi)</th>     
+                <th>@Html.DisplayNameFor(model => model.GorselVerisi)</th>
                 <th>İşlemler</th>
             </tr>
         </thead>
@@ -31,7 +31,9 @@
                     <td>@Html.DisplayFor(modelItem => item.KampanyaAciklamasi)</td>
                     <td>@item.BaslangicTarihi?.ToString("dd/MM/yyyy")</td>
                     <td>@item.BitisTarihi?.ToString("dd/MM/yyyy")</td>
-                    <td><img src="@item.GorselYolu" alt="Kampanya Görseli" style="width: 100px; height: auto;" /></td>
+                    <td>
+                        <img src="data:image/jpge;base64,@(item.GorselVerisi != null ? Convert.ToBase64String(item.GorselVerisi) : "")" alt="Resim Yok" style="max-width: 100px; max-height: 100px;" />
+                    </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.KampanyaID" class="btn btn-warning btn-sm">Düzenle</a>
                         <a asp-action="Delete" asp-route-id="@item.KampanyaID" class="btn btn-danger btn-sm">Sil</a>

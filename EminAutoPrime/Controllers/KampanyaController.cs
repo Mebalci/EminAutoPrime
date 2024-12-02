@@ -25,10 +25,13 @@ namespace EminAutoPrime.Controllers
         // GET: Kampanya
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Kampanyalar.ToListAsync());
+            var kampanyalar = await _context.Kampanyalar                
+                .OrderBy(k => k.BaslangicTarihi)
+                .ToListAsync();
+            return View(kampanyalar);
         }
 
-        // GET: Kampanya/Details/5
+        // GET: Kampanya/Details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -37,7 +40,8 @@ namespace EminAutoPrime.Controllers
             }
 
             var kampanya = await _context.Kampanyalar
-                .FirstOrDefaultAsync(m => m.KampanyaID == id);
+                .FirstOrDefaultAsync(k => k.KampanyaID == id);
+
             if (kampanya == null)
             {
                 return NotFound();
@@ -57,51 +61,39 @@ namespace EminAutoPrime.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Kampanya kampanya)
+        public async Task<IActionResult> Create(Kampanya kampanya, IFormFile resimDosyasi)
         {
-            if (ModelState.IsValid)
-            {
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine(error.ErrorMessage); 
-                }
-
-                if (kampanya.ResimDosyasi != null && kampanya.ResimDosyasi.Length > 0)
-                {
-                    string wwwRootPath = _hostEnvironment.WebRootPath;
-                    string uploadsFolder = Path.Combine(wwwRootPath, "uploads");
-                                        
-                    if (!Directory.Exists(uploadsFolder))
+            try
+            {               
+                
+                    if (resimDosyasi != null && resimDosyasi.Length > 0)
                     {
-                        Directory.CreateDirectory(uploadsFolder);
+                        // Resim dosyasını byte array'e dönüştürme
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await resimDosyasi.CopyToAsync(memoryStream);
+                            kampanya.GorselVerisi = memoryStream.ToArray();
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("ResimDosyasi", "Lütfen bir resim dosyası seçin.");
+                        return View(kampanya);
                     }
 
-                    string fileName = Path.GetFileNameWithoutExtension(kampanya.ResimDosyasi.FileName);
-                    string extension = Path.GetExtension(kampanya.ResimDosyasi.FileName);
-                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                    string path = Path.Combine(uploadsFolder, fileName);
-
-                    using (var fileStream = new FileStream(path, FileMode.Create))
-                    {
-                        await kampanya.ResimDosyasi.CopyToAsync(fileStream);
-                    }
-
-                    kampanya.GorselYolu = "/uploads/" + fileName;
-                }
-                else
-                {
-                    ModelState.AddModelError("ResimDosyasi", "Lütfen bir resim dosyası yükleyin.");
-                    return View(kampanya);
-                }
-
-                _context.Add(kampanya);
-                await _context.SaveChangesAsync();
-                             
-                return RedirectToAction("Index");
+                    _context.Add(kampanya);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hata: {ex.Message}");
+                ModelState.AddModelError("", "Bir hata oluştu, lütfen tekrar deneyin.");
+            }
+
             return View(kampanya);
         }
-
 
 
         // GET: Kampanya/Edit/5
@@ -125,32 +117,53 @@ namespace EminAutoPrime.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("KampanyaID,KampanyaBasligi,KampanyaAciklamasi,BaslangicTarihi,BitisTarihi,GorselYolu")] Kampanya kampanya)
+        public async Task<IActionResult> Edit(int id, Kampanya kampanya, IFormFile? resimDosyasi)
         {
             if (id != kampanya.KampanyaID)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Mevcut kampanya kaydını al
+                var existingKampanya = await _context.Kampanyalar.FindAsync(id);
+                if (existingKampanya == null)
                 {
-                    _context.Update(kampanya);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                // Alanları güncelle
+                existingKampanya.KampanyaBasligi = kampanya.KampanyaBasligi;
+                existingKampanya.KampanyaAciklamasi = kampanya.KampanyaAciklamasi;
+                existingKampanya.BaslangicTarihi = kampanya.BaslangicTarihi;
+                existingKampanya.BitisTarihi = kampanya.BitisTarihi;
+
+                // Yeni bir resim yüklenmişse, resmi güncelle
+                if (resimDosyasi != null && resimDosyasi.Length > 0)
                 {
-                    if (!KampanyaExists(kampanya.KampanyaID))
+                    using (var memoryStream = new MemoryStream())
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
+                        await resimDosyasi.CopyToAsync(memoryStream);
+                        existingKampanya.GorselVerisi = memoryStream.ToArray();
                     }
                 }
+
+                // Veritabanında güncelle
+                _context.Update(existingKampanya);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!KampanyaExists(kampanya.KampanyaID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
             return View(kampanya);
         }

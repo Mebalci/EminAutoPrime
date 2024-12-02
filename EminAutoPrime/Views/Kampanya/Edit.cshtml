@@ -1,54 +1,57 @@
 ﻿@model EminAutoPrime.Models.Kampanya
 
-@{
-    ViewData["Title"] = "Edit";
-}
+<div class="container-fluid justify-content-center align-items-center -background" style="min-height: 100vh; padding-top: 100px;">
+    <h1 class="display-4 text-primary mb-4">Kampanya Düzenle</h1>
+    <form asp-action="Edit" enctype="multipart/form-data" class="shadow p-5 bg-white rounded">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="KampanyaID" />
 
-<h1>Edit</h1>
+        <div class="mb-4">
+            <label asp-for="KampanyaBasligi" class="form-label h5 text-dark"></label>
+            <input asp-for="KampanyaBasligi" class="form-control border-primary" />
+            <span asp-validation-for="KampanyaBasligi" class="text-danger"></span>
+        </div>
 
-<h4>Kampanya</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="KampanyaID" />
-            <div class="form-group">
-                <label asp-for="KampanyaBasligi" class="control-label"></label>
-                <input asp-for="KampanyaBasligi" class="form-control" />
-                <span asp-validation-for="KampanyaBasligi" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="KampanyaAciklamasi" class="control-label"></label>
-                <input asp-for="KampanyaAciklamasi" class="form-control" />
-                <span asp-validation-for="KampanyaAciklamasi" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BaslangicTarihi" class="control-label"></label>
-                <input asp-for="BaslangicTarihi" class="form-control" />
+        <div class="mb-4">
+            <label asp-for="KampanyaAciklamasi" class="form-label h5 text-dark"></label>
+            <textarea asp-for="KampanyaAciklamasi" class="form-control border-primary" rows="3"></textarea>
+            <span asp-validation-for="KampanyaAciklamasi" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <label asp-for="BaslangicTarihi" class="form-label h5 text-dark"></label>
+                <input asp-for="BaslangicTarihi" class="form-control border-primary" type="date" />
                 <span asp-validation-for="BaslangicTarihi" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="BitisTarihi" class="control-label"></label>
-                <input asp-for="BitisTarihi" class="form-control" />
+            <div class="col-md-6 mb-4">
+                <label asp-for="BitisTarihi" class="form-label h5 text-dark"></label>
+                <input asp-for="BitisTarihi" class="form-control border-primary" type="date" />
                 <span asp-validation-for="BitisTarihi" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="GorselYolu" class="control-label"></label>
-                <input asp-for="GorselYolu" class="form-control" />
-                <span asp-validation-for="GorselYolu" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+        <div class="mb-4">
+            <label class="form-label h5 text-dark">Mevcut Kampanya Resmi</label>
+            <div class="mb-3">
+                @if (Model.GorselVerisi != null)
+                {
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.GorselVerisi)" class="img-fluid rounded mb-3" alt="Kampanya Resmi" style="max-width: 200px;" />
+                }
+                else
+                {
+                    <p class="text-muted">Mevcut bir resim yok.</p>
+                }
+            </div>
+            <label class="form-label h5 text-dark">Yeni Resim Yükle</label>
+            <input type="file" name="resimDosyasi" class="form-control border-primary" />
+        </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 py-2 shadow">
+            <i class="fas fa-save"></i> Kaydet
+        </button>
+        <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-5 py-2 shadow">
+            <i class="fas fa-arrow-left"></i> Listeye Geri Dön
+        </a>
+    </form>
+</div>

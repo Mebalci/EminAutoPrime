@@ -1,17 +1,28 @@
-﻿@{
+﻿@model IEnumerable<EminAutoPrime.Models.Kampanya>
+@{
     ViewData["Title"] = "Home Page";
 }
-
 <!-- Carousel Start -->
 <div class="header-carousel owl-carousel">
-    <div class="header-carousel-item">
-        <img src="~/img/carousel-1.png" class="img-fluid w-100" alt="Image">
-        <div class="carousel-caption text-center d-flex flex-column align-items-center justify-content-center">
-            <h1 class="display-4 text-uppercase text-white mb-4">Kışa Hazırlık Servis İndirimi!</h1>
-            <h2 class="display-4 text-uppercase text-white mb-4">Soğuklar Gelmeden Aracınıza Güven Katın</h2>
-            <a class="btn btn-light rounded-pill py-3 px-4" href="#">Detaylar</a>
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var kampanya in Model)
+        {
+            <div class="header-carousel-item">
+                <img src="data:image/jpeg;base64,@Convert.ToBase64String(kampanya.GorselVerisi)" class="img-fluid w-100" alt="Kampanya Görseli">
+                <div class="carousel-caption text-center d-flex flex-column align-items-center justify-content-center">
+                    <h1 class="display-4 text-uppercase text-white mb-4">@kampanya.KampanyaBasligi</h1>                    
+                    <a class="btn btn-light rounded-pill py-3 px-4" href="@Url.Action("Details", "Kampanya", new { id = kampanya.KampanyaID })">Detaylar</a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="header-carousel-item">
+            <img src="~/img/carousel-1.png" class="img-fluid w-100" alt="Varsayılan Görsel">            
         </div>
-    </div>
+    }
 </div>
 <!-- Carousel End -->
 <!-- About Start -->

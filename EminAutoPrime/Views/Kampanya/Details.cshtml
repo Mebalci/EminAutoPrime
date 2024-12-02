@@ -1,48 +1,40 @@
 ﻿@model EminAutoPrime.Models.Kampanya
 
-@{
-    ViewData["Title"] = "Details";
-}
-
-<h1>Details</h1>
-
-<div>
-    <h4>Kampanya</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KampanyaBasligi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KampanyaBasligi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KampanyaAciklamasi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KampanyaAciklamasi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BaslangicTarihi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BaslangicTarihi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BitisTarihi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BitisTarihi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GorselYolu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GorselYolu)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.KampanyaID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="container-fluid blog py-5" style="background-color: #ffffff;">
+    <!-- Arka plan beyaz -->
+    <div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 70vh; margin-top: 50px;">
+        <!-- Yukarıdan boşluk eklendi -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <!-- mx-auto ile tam ortalama -->
+                <div class="blog-item p-4 rounded shadow" style="background-color: #007b50; color: white;">
+                    <!-- Kart yeşil ve beyaz yazı -->
+                    <div class="blog-img mb-4 text-center">
+                        @if (Model.GorselVerisi != null)
+                        {
+                            <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.GorselVerisi)" class="img-fluid rounded" alt="Kampanya Görseli">
+                        }
+                        else
+                        {
+                            <img src="~/img/default-image.jpg" class="img-fluid rounded" alt="Varsayılan Görsel">
+                        }
+                    </div>
+                    <div class="text-center">
+                        <a href="#" class="h4 d-inline-block mb-3 text-white">@Model.KampanyaBasligi</a>
+                        <p class="mb-4">@Model.KampanyaAciklamasi</p>
+                    </div>
+                    <div class="d-flex justify-content-around align-items-center">
+                        <div>
+                            <h5 class="text-white">Başlangıç Tarihi:</h5>
+                            <p class="mb-0 text-white">@Model.BaslangicTarihi?.ToString("dd/MM/yyyy")</p>
+                        </div>
+                        <div>
+                            <h5 class="text-white">Bitiş Tarihi:</h5>
+                            <p class="mb-0 text-white">@Model.BitisTarihi?.ToString("dd/MM/yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

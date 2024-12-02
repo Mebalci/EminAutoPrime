@@ -1,51 +1,32 @@
 ﻿@model EminAutoPrime.Models.Kampanya
 
-@{
-    ViewData["Title"] = "Delete";
-}
+<div class="container-fluid justify-content-center align-items-center -background" style="min-height: 100vh; padding-top: 100px;">
+    <h1 class="display-4 text-danger mb-4">Kampanya Sil</h1>
+    <p class="text-dark h5">Bu kampanyayı silmek istediğinizden emin misiniz?</p>
+    <div class="shadow p-5 bg-white rounded">
+        <dl class="row mb-4">
+            <dt class="col-sm-3 h5 text-dark">Başlık:</dt>
+            <dd class="col-sm-9 h6 text-muted">@Model.KampanyaBasligi</dd>
 
-<h1>Delete</h1>
+            <dt class="col-sm-3 h5 text-dark">Açıklama:</dt>
+            <dd class="col-sm-9 h6 text-muted">@Model.KampanyaAciklamasi</dd>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Kampanya</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KampanyaBasligi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KampanyaBasligi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KampanyaAciklamasi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KampanyaAciklamasi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BaslangicTarihi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BaslangicTarihi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BitisTarihi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BitisTarihi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GorselYolu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GorselYolu)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="KampanyaID" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+            <dt class="col-sm-3 h5 text-dark">Başlangıç Tarihi:</dt>
+            <dd class="col-sm-9 h6 text-muted">@Model.BaslangicTarihi?.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3 h5 text-dark">Bitiş Tarihi:</dt>
+            <dd class="col-sm-9 h6 text-muted">@Model.BitisTarihi?.ToString("dd/MM/yyyy")</dd>
+        </dl>
+
+        <form asp-action="Delete">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="KampanyaID" />
+            <button type="submit" class="btn btn-danger btn-lg rounded-pill px-5 py-2 shadow">
+                <i class="fas fa-trash"></i> Sil
+            </button>
+            <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-5 py-2 shadow">
+                <i class="fas fa-arrow-left"></i> Listeye Geri Dön
+            </a>
+        </form>
+    </div>
 </div>

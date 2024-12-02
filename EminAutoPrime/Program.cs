@@ -33,25 +33,22 @@ namespace EminAutoPrime
             // MVC yapılandırması
             builder.Services.AddControllersWithViews();
 
+            // Form verileri için maksimum boyut sınırı (örneğin resim yükleme)
             builder.Services.Configure<FormOptions>(options =>
             {
-                options.MultipartBodyLengthLimit = 10485760;
+                options.MultipartBodyLengthLimit = 10485760; // 10 MB
             });
 
             var app = builder.Build();
 
             // Rolleri ve admin kullanıcıyı oluştur
-            await CreateRolesAndAdminUserAsync(app);
-
-            // **Ek olarak, Rolleri Seed Etmek için RoleInitializer ekliyoruz**
-            var scope = app.Services.CreateScope();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            await RoleInitializer.SeedRoles(roleManager);
+            await SeedRolesAndAdminUserAsync(app);
 
             // HTTP isteği yapılandırması
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
+                app.UseDeveloperExceptionPage(); // Hata detayları için
             }
             else
             {
@@ -73,15 +70,18 @@ namespace EminAutoPrime
             app.Run();
         }
 
-        private static async Task CreateRolesAndAdminUserAsync(WebApplication app)
+        /// <summary>
+        /// Rolleri ve admin kullanıcısını seed etmek için bu metot kullanılır.
+        /// </summary>
+        private static async Task SeedRolesAndAdminUserAsync(WebApplication app)
         {
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
+                // Rolleri oluştur
                 string[] roles = { "Admin", "ServisCalisani", "Musteri" };
-
                 foreach (var role in roles)
                 {
                     if (!await roleManager.RoleExistsAsync(role))
@@ -90,20 +90,25 @@ namespace EminAutoPrime
                     }
                 }
 
-                var adminUser = await userManager.FindByEmailAsync("admin@eminauto.com");
+                // Admin kullanıcı oluştur
+                var adminEmail = "admin@eminauto.com";
+                var adminUser = await userManager.FindByEmailAsync(adminEmail);
                 if (adminUser == null)
                 {
-                    adminUser = new IdentityUser { UserName = "admin@eminauto.com", Email = "admin@eminauto.com" };
-                    var result = await userManager.CreateAsync(adminUser, "Admin@123");  // Güçlü bir şifre belirleyin
+                    adminUser = new IdentityUser
+                    {
+                        UserName = adminEmail,
+                        Email = adminEmail
+                    };
 
-                    if (result.Succeeded)
+                    var createAdminResult = await userManager.CreateAsync(adminUser, "Admin@123"); // Güçlü bir şifre kullanın
+                    if (createAdminResult.Succeeded)
                     {
                         await userManager.AddToRoleAsync(adminUser, "Admin");
                     }
                     else
                     {
-                        // Hataları loglayın veya detaylı bilgi alın
-                        foreach (var error in result.Errors)
+                        foreach (var error in createAdminResult.Errors)
                         {
                             Console.WriteLine(error.Description);
                         }

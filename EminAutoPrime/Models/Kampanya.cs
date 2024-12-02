@@ -26,12 +26,7 @@ namespace EminAutoPrime.Models
         [Display(Name = "Bitiş Tarihi")]
         public DateTime? BitisTarihi { get; set; }
 
-        [StringLength(200)]
-        [Display(Name = "Görsel Yolu")]
-        public string GorselYolu { get; set; }
-
-        [NotMapped]
-        [Display(Name = "Resim Dosyası")]
-        public IFormFile ResimDosyasi { get; set; }
+        [Display(Name = "Resim Verisi")]
+        public byte[] GorselVerisi { get; set; } 
     }
 }

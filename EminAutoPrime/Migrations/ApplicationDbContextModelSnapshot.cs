@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EminAutoPrime.Data.Migrations
+namespace EminAutoPrime.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -99,10 +99,9 @@ namespace EminAutoPrime.Data.Migrations
                     b.Property<DateTime?>("BitisTarihi")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("GorselYolu")
+                    b.Property<byte[]>("GorselVerisi")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("KampanyaAciklamasi")
                         .IsRequired()
