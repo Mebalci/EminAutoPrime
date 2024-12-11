@@ -1,0 +1,147 @@
+﻿@model EminAutoPrime.Models.MusterilerViewModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Yönetim Paneli";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+
+<style>
+    .btn-custom {
+        background-color: var(--bs-primary);
+        border: none;
+        color: white;
+        width: 100%;
+        height: 60px;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-title {
+        color: var(--bs-primary);
+        font-weight: bold;
+    }
+    
+</style>
+
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between btn-group-custom mb-1">
+        <button class="btn btn-custom" id="btn-vehicles"><i class="fas fa-car"></i> Araçlar</button>
+        <button class="btn btn-custom" id="btn-comments"><i class="fas fa-comments"></i> Yorumlar</button>
+        <button class="btn btn-custom" id="btn-info"><i class="fas fa-info-circle"></i> Bilgiler</button>
+        <button class="btn btn-custom" id="btn-appointments"><i class="fas fa-calendar-alt"></i> Randevular</button>
+    </div>
+
+    <!-- User Details -->
+    <div id="user-details" class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Kullanıcı Bilgileri</h5>
+        </div>
+        <div class="card-body">
+            <form id="user-details-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Ad Soyad</label>
+                        <input type="text" id="name" class="form-control" value="@Model.Name">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">E-posta</label>
+                        <input type="email" id="email" class="form-control" value="@Model.Email">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label">Telefon</label>
+                        <input type="text" id="phone" class="form-control" value="@Model.PhoneNumber">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="roles" class="form-label">Roller</label>
+                        <select id="roles" name="Role" class="form-select">
+                           
+                        </select>
+                    </div>
+
+
+                </div>
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <div id="dynamic-content" class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Araçlar</h5>
+        </div>
+        <div class="card-body">
+            <ul id="vehicle-list" class="list-group">
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        
+        $("#user-details-form").on("submit", function (e) {
+            e.preventDefault();
+
+            const updatedData = {
+                userId: "@Model.UserId",
+                name: $("#name").val(),
+                email: $("#email").val(),
+                phone: $("#phone").val(),
+                role: $("#roles").val()
+            };
+
+            $.ajax({
+                url: "/Admin/UpdateUserDetails",
+                type: "POST",
+                data: updatedData,
+                success: function () {
+                    alert("Kullanıcı bilgileri başarıyla güncellendi.");
+                },
+                error: function () {
+                    alert("Güncelleme sırasında hata oluştu.");
+                }
+            });
+        });
+        
+        $("#btn-vehicles").click(function () {
+            $.ajax({
+                url: "/Admin/GetUserVehicles",
+                type: "GET",
+                data: { userId: "@Model.UserId" },
+                    success: function (response) {
+                    let vehicleList = response.map(vehicle => `
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">${vehicle.markaAdi} - ${vehicle.modelAdi}</h5>
+                                <p class="card-text">
+                                    <strong>Plaka:</strong> ${vehicle.plaka}<br>
+                                    <strong>Yıl:</strong> ${vehicle.yil}
+                                </p>
+                            </div>
+                        </div>
+                    `).join("");
+
+                    $("#vehicle-list").html(vehicleList);
+                },
+                error: function () {
+                    alert("Araç bilgileri yüklenemedi.");
+                }
+            });
+        });
+    });
+</script>

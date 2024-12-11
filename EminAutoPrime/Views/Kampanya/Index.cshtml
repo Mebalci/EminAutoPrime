@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Kampanya Listesi";
+    Layout = "~/Views/Shared/Admin.cshtml";
 }
 
 <div class="container-fluid justify-content-center align-items-center -background" style="min-height: 100vh; padding-top: 100px;">
@@ -53,7 +54,7 @@
     }
 
     .custom-table-header {
-        background-color: #007b50; 
+        background-color: var(--bs-primary);
         color: white; 
     }
 

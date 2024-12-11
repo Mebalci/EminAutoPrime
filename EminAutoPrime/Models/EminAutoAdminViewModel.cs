@@ -7,8 +7,6 @@
         public int ToplamKampanyalar { get; set; } 
 
         
-        public List<EminAutoArac> EminAutoAraclar { get; set; }
-        public List<EminAutoServis> EminAutoServisler { get; set; }
         public List<Kampanya> Kampanyalar { get; set; }
     }
 }

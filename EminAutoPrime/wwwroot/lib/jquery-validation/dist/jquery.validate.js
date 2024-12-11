@@ -250,6 +250,7 @@ $.validator = function( options, form ) {
 	this.init();
 };
 
+
 // https://jqueryvalidation.org/jQuery.validator.format/
 $.validator.format = function( source, params ) {
 	if ( arguments.length === 1 ) {
@@ -1659,3 +1660,4 @@ if ( $.ajaxPrefilter ) {
 }
 return $;
 }));
+

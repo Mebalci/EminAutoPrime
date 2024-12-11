@@ -354,6 +354,11 @@
         transform: translateX(-50%);
         margin-left: 45px;
     }
+
+    #createUserForm button {
+        width: 100%; 
+        margin-top: 10px;
+    }
 }
 
 

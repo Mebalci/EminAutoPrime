@@ -1,4 +1,5 @@
 using EminAutoPrime.Data;
+using EminAutoPrime.Models;
 using EminAutoPrime.Utilities;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
@@ -21,8 +22,9 @@ namespace EminAutoPrime
 
             // Identity yapılandırması
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-            {
-                options.SignIn.RequireConfirmedAccount = false; // E-posta onayı gerekmediği için false yapıyoruz
+            {           
+                options.SignIn.RequireConfirmedAccount = false;
+                options.User.AllowedUserNameCharacters = "abcçdefgğhıijklmnoöpqrsştuüvwxyzABCÇDEFGĞHIİJKLMNOÖPQRSŞTUÜVWXYZ0123456789-._@+ ";
             })
             .AddRoles<IdentityRole>()  // Rolleri eklemek için bu satırı ekleyin
             .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -62,6 +64,7 @@ namespace EminAutoPrime
             app.UseAuthentication();
             app.UseAuthorization();
 
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -79,8 +82,7 @@ namespace EminAutoPrime
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-                // Rolleri oluştur
+                                
                 string[] roles = { "Admin", "ServisCalisani", "Musteri" };
                 foreach (var role in roles)
                 {
@@ -89,8 +91,8 @@ namespace EminAutoPrime
                         await roleManager.CreateAsync(new IdentityRole(role));
                     }
                 }
-
-                // Admin kullanıcı oluştur
+                
+                var adminName = "EMİN AUTO PRİME";
                 var adminEmail = "admin@eminauto.com";
                 var adminUser = await userManager.FindByEmailAsync(adminEmail);
                 if (adminUser == null)
@@ -101,7 +103,7 @@ namespace EminAutoPrime
                         Email = adminEmail
                     };
 
-                    var createAdminResult = await userManager.CreateAsync(adminUser, "Admin@123"); // Güçlü bir şifre kullanın
+                    var createAdminResult = await userManager.CreateAsync(adminUser, "Admin@123");
                     if (createAdminResult.Succeeded)
                     {
                         await userManager.AddToRoleAsync(adminUser, "Admin");

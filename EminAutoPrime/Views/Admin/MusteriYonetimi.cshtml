@@ -1,60 +1,78 @@
 ﻿@model List<EminAutoPrime.Models.MusterilerViewModel>
 
 @{
-    ViewData["Title"] = "Müşteri Yönetimi";
-}
+    ViewData["Title"] = "Kullanıcı Yönetim Paneli";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}  
 
 <div class="container py-5 mt-5">
     <div class="text-center mb-5">
-        <h1 class="text-primary">Müşteri Yönetimi</h1>
+        <h1 class="text-primary">Kullanıcı Yönetim Paneli</h1>
     </div>
 
-    <!-- Arama Kutusu -->
-    <form method="get" asp-action="MusteriYonetimi" class="mb-4">
-        <div class="input-group" style="max-width: 600px; margin: 0 auto;">
-            <input type="text" name="searchTerm" class="form-control" placeholder="Müşteri adı ara..." value="@ViewData["SearchTerm"]">
-            <button type="submit" class="btn btn-primary">Ara</button>
+    <!-- Kullanıcı Oluşturma Formu -->
+    <div class="card shadow mb-5">
+        <div class="card-header" style="background-color: var(--bs-primary); color: white;">Yeni Kullanıcı Oluştur</div>
+        <div class="card-body">
+            <form id="createUserForm">
+                <div class="row g-3">
+                    <div class="col-md-3 col-12">
+                        <input type="text" id="name" class="form-control" placeholder="Kullanıcı Adı" required>
+                        <div id="nameError" class="text-danger"></div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                        <input type="email" id="email" class="form-control" placeholder="E-posta" required>
+                        <div id="emailError" class="text-danger"></div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                        <input type="text" id="phoneNumber" class="form-control" placeholder="Telefon Numarası" required>
+                        <div id="phoneNumberError" class="text-danger"></div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                        <input type="password" id="password" class="form-control" placeholder="Şifre" required>
+                        <div id="passwordError" class="text-danger"></div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn text-white" style="background-color: var(--bs-primary);">Kullanıcı Oluştur</button>
+                </div>
+            </form>
+            <div id="createMessage" class="mt-3"></div>
         </div>
-    </form>
+    </div>
 
-    <!-- Müşteri Tablosu -->
+    <!-- Kullanıcı Tablosu -->
     <div class="table-responsive shadow">
         <table class="table table-bordered table-hover text-center">
-            <thead class="bg-primary text-white">
+            <thead style="background-color: var(--bs-primary); color: white;">
                 <tr>
                     <th>Kullanıcı Adı</th>
                     <th>Email</th>
-                    <th>Mevcut Roller</th>
-                    <th>Yeni Rol Ata</th>
+                    <th>Telefon</th>
+                    <th>Roller</th>
+                    <th>İşlemler</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var customer in Model)
+                @foreach (var user in Model)
                 {
                     <tr>
-                        <td>@customer.Name</td>
-                        <td>@customer.Email</td>
-                        <td>@string.Join(", ", customer.Roles)</td>
+                        <td>@user.Name</td>
+                        <td>@user.Email</td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@string.Join(", ", user.Roles)</td>
                         <td>
-                            <form method="post" asp-action="AssignRole">
-                                <div class="input-group">
-                                    <input type="hidden" name="userId" value="@customer.UserId">
-                                    <select name="role" class="form-select">
-                                        <option value="Admin">Admin</option>
-                                        <option value="Musteri">Müşteri</option>
-                                        <option value="ServisCalisani">Servis Çalışanı</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-primary">Ata</button>
-                                </div>
-                            </form>
+                            <a asp-action="Details" asp-route-id="@user.UserId" class="btn text-white btn-sm" style="background-color: var(--bs-primary);">Detay</a>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+</div>
 
-    <!-- Sayfalandırma -->
+@if (ViewData["TotalPages"] != null && (int)ViewData["TotalPages"] > 0)
+{
     <nav class="mt-4">
         <ul class="pagination justify-content-center">
             @for (int i = 1; i <= (int)ViewData["TotalPages"]; i++)
@@ -65,4 +83,44 @@
             }
         </ul>
     </nav>
-</div>
+}
+else
+{
+    <p class="text-center text-muted">Hiç kullanıcı bulunamadı.</p>
+}
+
+<!-- AJAX Kodları -->
+<script>
+    $(document).ready(function () {
+        $("#createUserForm").on("submit", function (e) {
+            e.preventDefault();
+
+            const data = {
+                name: $("#name").val(),
+                email: $("#email").val(),
+                phoneNumber: $("#phoneNumber").val(),
+                password: $("#password").val()
+            };
+
+            $.ajax({
+                url: '/Admin/CreateUser',
+                type: 'POST',
+                data: data,
+                success: function () {
+                    $("#createMessage").html('<div class="alert alert-success">Kullanıcı başarıyla oluşturuldu.</div>');
+                    $("#createUserForm")[0].reset();
+                },
+                error: function (xhr) {
+                    const errorMessage = xhr.responseJSON?.message || "Bir hata oluştu.";
+                    $("#createMessage").html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                }
+            });
+        });
+
+        $(document).on("click", ".details-button", function () {
+            const userId = $(this).data("id");
+            window.location.href = '/Admin/Details/' + userId;
+        });
+    });
+</script>
+
