@@ -1,0 +1,268 @@
+﻿@{
+    ViewData["Title"] = "Kullanıcı ve Araç Yönetimi";
+    Layout = User.IsInRole("Admin") ? "~/Views/Shared/Admin.cshtml" : "_Layout";
+}
+
+<div class="container py-5" style="margin-top: 100px;">
+    <div class="d-flex justify-content-between mb-4">
+        <h3 class="text-primary">Kullanıcı ve Araç Yönetimi</h3>
+        <button id="btnAddUser" class="btn btn-primary"><i class="fas fa-user-plus"></i> Yeni Kullanıcı Ekle</button>
+    </div>
+
+    
+    <div class="card mb-4 p-3 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <input type="text" id="searchInput" class="form-control" placeholder="Kullanıcı Adı, Email veya Telefon Ara">
+            </div>
+            <div class="col-md-3">
+                <button id="btnSearch" class="btn btn-primary w-100">Ara</button>
+            </div>
+        </div>
+    </div>
+
+ 
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kullanıcı Adı</th>
+                        <th>Email</th>
+                        <th>Telefon</th>
+                        <th>Araç Bilgisi</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable"></tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-end p-3">
+            <button id="btnPrevious" class="btn btn-light me-2" disabled>Önceki</button>
+            <button id="btnNext" class="btn btn-light" disabled>Sonraki</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Kullanıcı Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3"><label>Ad</label><input type="text" id="inputFirstName" class="form-control"></div>
+                <div class="mb-3"><label>Soyad</label><input type="text" id="inputLastName" class="form-control"></div>
+                <div class="mb-3"><label>Telefon</label><input type="text" id="inputPhone" class="form-control"></div>
+                <div class="mb-3"><label>Email</label><input type="email" id="inputEmail" class="form-control"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" id="btnSaveUser" class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addVehicleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Araç Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3"><label>Plaka</label><input type="text" id="vehiclePlaka" class="form-control"></div>
+                <div class="mb-3"><label>Marka</label><select id="vehicleMarka" class="form-control"></select></div>
+                <div class="mb-3"><label>Model</label><select id="vehicleModel" class="form-control"></select></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" id="btnSaveVehicle" class="btn btn-success">Araç Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+<script>
+    let newUserId;
+
+    $(document).ready(function () {
+        let currentPage = 1;
+        const pageSize = 25;
+
+        loadUsers();
+
+    function loadUsers(searchTerm = "", page = 1) {
+        $.ajax({
+            url: "/ServisKayit/GetUsers",
+            method: "GET",
+            data: { searchTerm, page, pageSize },
+            success: function (response) {
+                let rows = "";
+                response.users.forEach(user => {
+                    const firstVehicle = user.firstVehicle
+                        ? `${user.firstVehicle.plaka} (${user.firstVehicle.markaAdi} ${user.firstVehicle.modelAdi})`
+                        : "Araç Yok";
+
+                    const otherVehicles = user.otherVehicles
+                        ? `<select class="form-select form-select-sm mt-2">
+                                <option value="">Diğer Araçlar</option>
+                                ${user.otherVehicles.map(vehicle =>
+                                    `<option value="${vehicle.id}">${vehicle.plaka} (${vehicle.markaAdi} ${vehicle.modelAdi})</option>`).join("")}
+                           </select>`
+                        : "";
+
+                    rows += `<tr>
+                        <td>${user.fullName}</td>
+                        <td>${user.email}</td>
+                        <td>${user.phone}</td>
+                        <td>
+                            ${firstVehicle}
+                            ${otherVehicles}
+                        </td>
+                        <td>${user.status}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="createServisKayit('${user.id}')">Kayıt Oluştur</button>
+                            <button class="btn btn-sm btn-info" onclick="EditUserAndVehicle('${user.id}')">Düzenle</button>
+                        </td>
+                    </tr>`;
+                });
+
+                $("#userTable").html(rows);
+
+                currentPage = response.currentPage;
+                const totalPages = response.totalPages;
+
+                $("#btnPrevious").prop("disabled", currentPage <= 1);
+                $("#btnNext").prop("disabled", currentPage >= totalPages);
+            }
+        });
+        }
+
+        $("#btnPrevious").click(() => {
+        if (currentPage > 1) {
+            loadUsers($("#searchInput").val(), currentPage - 1);
+        }
+        });
+        $("#btnNext").click(() => {
+            loadUsers($("#searchInput").val(), currentPage + 1);
+        });
+              
+        $("#btnSearch").click(() => loadUsers($("#searchInput").val(), 1));
+        $("#searchInput").keydown(function (e) {
+            if (e.key === "Enter") loadUsers($(this).val(), 1);
+        });
+                
+        $("#btnAddUser").click(() => $("#addUserModal").modal("show"));
+                
+        $("#btnSaveUser").click(function () {
+            const firstName = capitalizeText($("#inputFirstName").val());
+            const lastName = capitalizeText($("#inputLastName").val());
+            const email = $("#inputEmail").val();
+            const phone = $("#inputPhone").val();
+
+            if (!validateUserInput(firstName, lastName, email, phone)) return;
+
+            $.post("/ServisKayit/CreateUser", { firstName, lastName, email, phoneNumber: phone }, function (response) {
+                if (response.success) {
+                    newUserId = response.user.id;
+                    $("#addUserModal").modal("hide");
+                    loadMarkalar();
+                    $("#addVehicleModal").modal("show");
+                } else {
+                    alert("Hata: " + response.message);
+                }
+            });
+        });
+                
+        function loadMarkalar() {
+            $.get("/ServisKayit/GetMarkalar", function (data) {
+                let options = '<option value="">Marka Seç</option>';
+                data.forEach(marka => options += `<option value="${marka.markaId}">${marka.markaAdi}</option>`);
+                $("#vehicleMarka").html(options);
+            });
+        }
+
+        $("#vehicleMarka").change(function () {
+            $.get("/ServisKayit/GetModeller", { markaId: $(this).val() }, function (data) {
+                let options = '<option value="">Model Seç</option>';
+                data.forEach(model => options += `<option value="${model.modelId}">${model.modelAdi}</option>`);
+                $("#vehicleModel").html(options);
+            });
+        });
+                
+        $("#btnSaveVehicle").click(function () {
+            const plaka = $("#vehiclePlaka").val();
+            if (!validatePlaka(plaka)) {
+                alert("Geçerli bir plaka formatı giriniz (örn: 06ABC123).");
+                return;
+            }
+
+            $.post("/ServisKayit/AddArac", {
+                plaka: plaka,
+                markaId: $("#vehicleMarka").val(),
+                modelId: $("#vehicleModel").val(),
+                sahipId: newUserId
+            }, function (response) {
+                if (response.success) {
+                    alert("Araç başarıyla eklendi.");
+                    $("#addVehicleModal").modal("hide");
+                    loadUsers();
+                } else {
+                    alert("Hata: " + response.message);
+                }
+            });
+        });
+       
+        function capitalizeText(text) {
+            return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+        }
+        
+        function validateUserInput(firstName, lastName, email, phone) {            
+            const phoneRegex = /^[0-9]{10,11}$/;
+
+            if (!firstName || !lastName) {
+                alert("Ad ve soyad alanları boş olamaz.");
+                return false;
+            }            
+            if (!phoneRegex.test(phone)) {
+                alert("Telefon numarası alanını kontrol ediniz.");
+                return false;
+            }
+            return true;
+        }
+                
+        function validatePlaka(plaka) {
+            const plakaRegex = /^[0-9]{2}[A-Z]{1,3}[0-9]{2,4}$/;
+            return plakaRegex.test(plaka);
+        }
+    });
+
+    function createServisKayit(kullaniciId) {
+        if (!kullaniciId) {
+            alert("Kullanıcı ID bulunamadı.");
+            return;
+        }                 
+        window.location.href = `/ServisKayit/CreateServisKayit?kullaniciId=${kullaniciId}`;
+    }     
+
+    function EditUserAndVehicle(kullaniciId) {
+        if (!kullaniciId) {
+            alert("Kullanıcı ID bulunamadı.");
+            return;
+        }
+        window.location.href = `/ServisKayit/EditServisKayit?userId=${kullaniciId}`;
+    }
+
+</script>
+
+
+
+

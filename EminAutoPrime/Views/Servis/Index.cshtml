@@ -1,0 +1,45 @@
+﻿@model IEnumerable<ServisViewModel>
+@{
+    ViewBag.Title = "Servis Bilgilari";
+    ViewData["Title"] = "Servis Bilgileri";
+    Layout = User.IsInRole("Admin") ? "~/Views/Shared/Admin.cshtml" : "_Calisan";
+}
+<div class="container " style="margin-top:100px;>
+    <div class="card shadow">
+    <div class="card-header text-white" style="background-color: var(--bs-primary);">
+        <h3 class="mb-0">Servis Detayları</h3>
+    </div>
+        <table class="table table-hover shadow">
+            <thead>
+                <tr>
+                    <th>Plaka ve Araç</th>
+                    <th>Servis Alanı</th>
+                    <th>Başlangıç Tarihi</th>
+                    <th>Tahmini Bitiş</th>
+                    <th>Durum</th>
+                    <th>Toplam Maliyet</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var servis in Model)
+                {
+                    <tr>
+                        <td>@servis.AracBilgisi</td>
+                        <td>@servis.ServisAlani</td>
+                        <td>@servis.BaslangicTarihi.ToString("dd.MM.yyyy")</td>
+                        <td>@servis.TahminiBitisTarihi?.ToString("dd.MM.yyyy")</td>
+                        <td>@servis.Durum</td>
+                        <td>@servis.ToplamMaliyet</td>
+                        <td>
+                        
+                            <a href="@Url.Action("Detay", "Servis", new { servisId = servis.ServisId })" class="btn btn-primary">
+                                Detay
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

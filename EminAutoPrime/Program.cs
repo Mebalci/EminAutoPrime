@@ -21,7 +21,7 @@ namespace EminAutoPrime
                 options.UseSqlServer(connectionString));
 
             // Identity yapılandırması
-            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+            builder.Services.AddDefaultIdentity<AplicationUser>(options =>
             {           
                 options.SignIn.RequireConfirmedAccount = false;
                 options.User.AllowedUserNameCharacters = "abcçdefgğhıijklmnoöpqrsştuüvwxyzABCÇDEFGĞHIİJKLMNOÖPQRSŞTUÜVWXYZ0123456789-._@+ ";
@@ -34,11 +34,10 @@ namespace EminAutoPrime
 
             // MVC yapılandırması
             builder.Services.AddControllersWithViews();
-
-            // Form verileri için maksimum boyut sınırı (örneğin resim yükleme)
+                        
             builder.Services.Configure<FormOptions>(options =>
             {
-                options.MultipartBodyLengthLimit = 10485760; // 10 MB
+                options.MultipartBodyLengthLimit = 10485760; 
             });
 
             var app = builder.Build();
@@ -57,6 +56,7 @@ namespace EminAutoPrime
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -81,7 +81,7 @@ namespace EminAutoPrime
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AplicationUser>>();
                                 
                 string[] roles = { "Admin", "ServisCalisani", "Musteri" };
                 foreach (var role in roles)
@@ -97,10 +97,12 @@ namespace EminAutoPrime
                 var adminUser = await userManager.FindByEmailAsync(adminEmail);
                 if (adminUser == null)
                 {
-                    adminUser = new IdentityUser
+                    adminUser = new AplicationUser
                     {
                         UserName = adminEmail,
-                        Email = adminEmail
+                        Email = adminEmail,
+                        KullaniciAdi = adminName,
+                        KullaniciSoyadi = adminName,
                     };
 
                     var createAdminResult = await userManager.CreateAsync(adminUser, "Admin@123");

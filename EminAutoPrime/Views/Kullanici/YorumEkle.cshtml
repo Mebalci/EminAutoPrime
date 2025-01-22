@@ -1,0 +1,41 @@
+﻿@model EminAutoPrime.Models.KullaniciYorumlari
+<style>
+    .add-yorum-btn {
+        background-color: var(--bs-primary);
+        color: white;
+        border: solid;
+        border-color: var(--bs-primary);
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .add-yorum-btn:hover {
+            background-color: white;
+            color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+</style>
+<div class="container" style="margin-top:100px;">
+    <h2>Yorum Ekle</h2>
+    <form asp-action="YorumEkle" method="post">
+        <div class="mb-3">
+            <label for="YorumMetni" class="form-label">Yorum</label>
+            <textarea id="YorumMetni" name="YorumMetni" class="form-control" rows="3" required></textarea>
+            <span asp-validation-for="YorumMetni" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label for="Puan" class="form-label">Puan</label>
+            <input type="number" id="Puan" name="Puan" class="form-control" min="1" max="5" required />
+            <span asp-validation-for="Puan" class="text-danger"></span>
+        </div>
+        <button type="submit" class="add-yorum-btn">Gönder</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate.unobtrusive/1.19.5/jquery.validate.unobtrusive.min.js"></script>
+}

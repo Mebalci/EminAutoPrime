@@ -1,0 +1,101 @@
+﻿@model EminAutoPrime.Models.RandevuAlViewModel
+
+<style>
+    .content-section {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        height: 100%;
+        border: none; 
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+        transition: transform 0.2s, box-shadow 0.2s; 
+    }
+
+        .card:hover {
+            transform: scale(1.05); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+        }
+
+    .card-img-top {
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .card-body {
+        text-align: center;
+    }    
+
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    h2.page-title {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: black;
+        text-align: left;
+        margin-bottom: 30px;
+    }
+</style>
+
+<div class="content-section"> 
+    <div>
+        <h2 class="mb-4">Kampanyalarım</h2>
+    </div>
+    <div class="row">
+        @if (Model.Kampanyalar != null && Model.Kampanyalar.Any())
+        {
+            @foreach (var kampanya in Model.Kampanyalar)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm">
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(kampanya.GorselVerisi)" class="card-img-top" alt="Kampanya Resmi">
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">@kampanya.KampanyaBasligi</h5>
+                            <p class="card-text small text-muted">@kampanya.KampanyaAciklamasi</p>
+                            <p class="card-text">
+                                <small class="text-muted">Bitiş Tarihi: @kampanya.BitisTarihi?.ToShortDateString()</small>
+                            </p>                            
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Henüz bir kampanya bulunmamaktadır.</p>
+        }
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const contentArea = document.getElementById('content-area');
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                const url = link.getAttribute('data-url');
+
+                fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                    .then(response => response.text())
+                    .then(html => {
+                        contentArea.innerHTML = html;
+                    })
+                    .catch(err => console.error('Hata:', err));
+            });
+        });
+    });
+</script>

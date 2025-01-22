@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
+using EminAutoPrime.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -14,18 +16,18 @@ namespace EminAutoPrime.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly UserManager<AplicationUser> _userManager;
+        private readonly SignInManager<AplicationUser> _signInManager;
+        private readonly IUserStore<AplicationUser> _userStore;
+        private readonly IUserEmailStore<AplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<AplicationUser> userManager,
+            IUserStore<AplicationUser> userStore,
+            SignInManager<AplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager)
@@ -48,10 +50,15 @@ namespace EminAutoPrime.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required(ErrorMessage = "Ad Soyad alaný zorunludur.")]
-            [Display(Name = "Ad Soyad")]
-            [RegularExpression(@"^[a-zA-Z0-9çÇðÐýÝöÖþÞüÜ\s]+$", ErrorMessage = "Ad Soyad yalnýzca harf, rakam ve boþluk içerebilir.")]
-            public string UserName { get; set; }
+            [Required(ErrorMessage = "Ad alaný zorunludur.")]
+            [Display(Name = "Ad")]
+            [RegularExpression(@"^[a-zA-ZçÇðÐýÝöÖþÞüÜ\s]+$", ErrorMessage = "Ad yalnýzca harf, rakam ve boþluk içerebilir.")]
+            public string KullaniciAdi { get; set; }
+
+            [Required(ErrorMessage = "Soyad alaný zorunludur.")]
+            [Display(Name = "Soyad")]
+            [RegularExpression(@"^[a-zA-ZçÇðÐýÝöÖþÞüÜ\s]+$", ErrorMessage = "Soyad yalnýzca harf, rakam ve boþluk içerebilir.")]
+            public string KullaniciSoyAdi { get; set; }
 
             [Required(ErrorMessage = "E-posta alaný zorunludur.")]
             [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]
@@ -75,6 +82,15 @@ namespace EminAutoPrime.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
         }
 
+        private string FormatName(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+            var culture = new CultureInfo("tr-TR");
+            text = text.ToLower(culture);
+            return char.ToUpper(text[0], culture) + text.Substring(1);
+        }
+
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
@@ -91,6 +107,10 @@ namespace EminAutoPrime.Areas.Identity.Pages.Account
 
                 var user = CreateUser();
 
+                
+
+                user.KullaniciAdi= (FormatName(Input.KullaniciAdi) ?? "Emin Auto Ad");
+                user.KullaniciSoyadi = (FormatName(Input.KullaniciSoyAdi) ?? "Emin Auto Soyad");
                 user.PhoneNumber = Input.PhoneNumber ?? string.Empty; ;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
@@ -142,26 +162,26 @@ namespace EminAutoPrime.Areas.Identity.Pages.Account
             return Page();
         }       
 
-        private IdentityUser CreateUser()
+        private AplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<AplicationUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"'{nameof(IdentityUser)}' oluþturulamadý. " +
-                    $"'{nameof(IdentityUser)}' soyut bir sýnýf olmamalý ve parametresiz bir kurucuya sahip olmalýdýr.");
+                throw new InvalidOperationException($"'{nameof(AplicationUser)}' oluþturulamadý. " +
+                    $"'{nameof(AplicationUser)}' soyut bir sýnýf olmamalý ve parametresiz bir kurucuya sahip olmalýdýr.");
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<AplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("Varsayýlan UI, e-posta desteði olan bir kullanýcý deposu gerektirir.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<AplicationUser>)_userStore;
         }
     }
 }

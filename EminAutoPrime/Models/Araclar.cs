@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using EminAutoPrime.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace EminAutoPrime.Models
 {
@@ -12,6 +13,8 @@ namespace EminAutoPrime.Models
         public AracModelleri Model { get; set; }
         public int Yil { get; set; }
         public string SahipId { get; set; }
-        public IdentityUser Sahip { get; set; }
+        public AplicationUser Sahip { get; set; }
+
+        public ICollection<ServisIslemleri> ServisIslemleri { get; set; }
     }
 }

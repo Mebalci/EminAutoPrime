@@ -1,0 +1,42 @@
+﻿@model int
+@{
+    ViewBag.Title = "Servis Alanı Seç";
+    ViewData["Title"] = "Servis Alanı Seç";
+    Layout = User.IsInRole("Admin") ? "~/Views/Shared/Admin.cshtml" : "_Calisan";
+}
+<div class="container" style="margin-top:150px">
+    <h2>Servis Alanı Seç</h2>
+    <p>Lütfen bu servis kaydı için bir servis alanı seçin.</p>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <form method="post" asp-action="ServisAlaniSec" asp-controller="Servis">
+         
+        <input type="hidden" name="servisId" value="@ViewBag.ServisId" />
+
+        <div class="form-group">
+            <label for="servisAlaniId">Servis Alanı</label>
+            <select id="servisAlaniId" name="servisAlaniId" class="form-control" required>
+                <option value="">Seçiniz</option>
+                @foreach (var servisAlani in ViewBag.ServisAlanlari as List<SelectListItem>)
+                {
+                    <option value="@servisAlani.Value">@servisAlani.Text</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Kaydet</button>
+    </form>
+</div>

@@ -1,0 +1,93 @@
+﻿@model IEnumerable<EminAutoPrime.Models.KullaniciYorumlari>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: var(--bs-light);
+        cursor: pointer;
+    }
+
+    .table th {
+        background-color: var(--bs-primary);
+        color: white;
+        text-align: center;
+        white-space: nowrap; /* Sütun başlıklarının satır kaydırmasını önler */
+    }
+
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap; /* Hücrelerin satır kaydırmasını önler */
+    }
+
+    .table {
+        border: 1px solid var(--bs-primary);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .empty-state {
+        min-height: 30vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 1.2rem;
+    }
+
+    .add-yorum-btn {
+        background-color: var(--bs-primary);
+        color: white;
+        border: solid;
+        border-color: var(--bs-primary);
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .add-yorum-btn:hover {
+            background-color: white;
+            color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+</style>
+
+<div class="container mt-4">
+    <h2>Kullanıcı Yorumları</h2>
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">
+            Henüz bir yorum bulunmamaktadır.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover shadow-sm">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı Adı</th>
+                        <th>Yorum</th>
+                        <th>Puan</th>
+                        <th>Oluşturulma Tarihi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var yorum in Model)
+                    {
+                        <tr>
+                            <td>@yorum.Kullanici.UserName</td>
+                            <td>@yorum.YorumMetni</td>
+                            <td>@yorum.Puan</td>
+                            <td>@yorum.OlusturulmaTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <div class="text-center mt-4 mb-4">
+        <a class="add-yorum-btn" href="/Kullanici/YorumEkle">Yorum Ekle</a>
+    </div>
+</div>

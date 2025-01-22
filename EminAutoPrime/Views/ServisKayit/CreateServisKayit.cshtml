@@ -1,0 +1,93 @@
+﻿@model EminAutoPrime.Models.ServisKayitViewModel
+
+@{
+    ViewData["Title"] = "Yeni Servis Kaydı Oluştur";
+    Layout = User.IsInRole("Admin") ? "~/Views/Shared/Admin.cshtml" : "_Layout";
+}
+<div class="container py-5" style="margin-top:150px">
+    <h3 class="text-primary mb-4">Servis Kaydı Oluştur</h3>
+    <div id="formMessage" class="alert" style="display: none;"></div>
+    <form id="createServisForm">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Kullanıcı Adı</label>
+                <input type="text" class="form-control" value="@Model.KullaniciAdi" readonly />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Araç Seçimi</label>
+                <select id="AracId" name="AracId" class="form-control" required>
+                    <option value="">Araç Seçin</option>
+                    @foreach (var arac in Model.AracListesi)
+                    {
+                        <option value="@arac.Value">@arac.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Başlangıç Tarihi</label>
+                <input id="BaslangicTarihi" name="BaslangicTarihi" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Tahmini Bitiş Tarihi</label>
+                <input id="TahminiBitisTarihi" name="TahminiBitisTarihi" type="date" class="form-control" required />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Durum</label>
+                <select id="DurumId" name="DurumId" class="form-control" required>
+                    <option value="">Durum Seçin</option>
+                    @foreach (var durum in Model.DurumListesi)
+                    {
+                        <option value="@durum.Value">@durum.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Toplam Maliyet</label>
+                <input id="ToplamMaliyet" name="ToplamMaliyet" type="number" class="form-control" min="0" step="0.01" required />
+            </div>
+            <div class="col-12 mb-3">
+                <label>Açıklama</label>
+                <textarea id="Aciklama" name="Aciklama" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="text-end">
+            <button type="submit" class="btn btn-success">Kaydet</button>
+            <a href="/ServisKayit/Index" class="btn btn-secondary">Vazgeç</a>
+        </div>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#createServisForm").submit(function (e) {
+            e.preventDefault();
+
+            const data = {
+                AracId: $("#AracId").val(),
+                BaslangicTarihi: $("#BaslangicTarihi").val(),
+                TahminiBitisTarihi: $("#TahminiBitisTarihi").val(),
+                DurumId: $("#DurumId").val(),
+                Aciklama: $("#Aciklama").val(),
+                ToplamMaliyet: $("#ToplamMaliyet").val()
+            };
+
+            $.ajax({
+                url: '/ServisKayit/CreateServisKayit',
+                method: 'POST',
+                data: data,
+                success: function (response) {
+                    if (response.success) {
+                        $("#formMessage").removeClass("alert-danger").addClass("alert-success").html("Servis kaydı başarıyla oluşturuldu!").show();
+                        setTimeout(() => window.location.href = '/ServisKayit/Index', 2000);
+                    } else {
+                        const errorList = response.errors ? response.errors.map(err => `<li>${err}</li>`).join('') : response.message;
+                        $("#formMessage").removeClass("alert-success").addClass("alert-danger").html(`<ul>${errorList}</ul>`).show();
+                    }
+                },
+                error: function () {
+                    $("#formMessage").removeClass("alert-success").addClass("alert-danger").html("Sunucu hatası oluştu.").show();
+                }
+            });
+        });
+    });
+</script>

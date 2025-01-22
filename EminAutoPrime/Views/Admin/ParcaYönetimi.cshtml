@@ -1,0 +1,206 @@
+﻿@{
+    ViewData["Title"] = "Parça Yönetimi";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+
+<style>
+    .btn-custom {
+        background-color: var(--bs-primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 10px 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .form-section {
+        margin-top: 20px;
+    }
+
+    .table {
+        margin-top: 15px;
+    }
+
+        .table th {
+            background-color: var(--bs-primary);
+            color: white;
+            text-align: center;
+        }
+
+        .table td {
+            text-align: center;
+        }
+
+    .pagination {
+        margin-top: 15px;
+    }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+</style>
+
+<div class="container py-5">
+    <h3 class="mb-4">Parçalar Yönetimi</h3>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <button id="btn-add-part" class="btn btn-custom"><i class="fas fa-plus"></i> Parça Ekle</button>
+        <button id="btn-download-template" class="btn btn-custom"><i class="fas fa-download"></i> Excel Şablonu İndir</button>
+        <button id="btn-upload-excel" class="btn btn-custom"><i class="fas fa-upload"></i> Excel Yükle</button>
+        <input type="file" id="excel-file" class="d-none">
+    </div>
+
+    <div id="add-section" class="form-section d-none">
+        <h4>Yeni Parça Ekle</h4>
+        <input type="text" id="part-name" class="form-control mb-3" placeholder="Parça Adı">
+        <input type="number" id="part-price" class="form-control mb-3" placeholder="Fiyat">
+        <input type="number" id="part-stock" class="form-control mb-3" placeholder="Stok Miktarı">
+        
+        <select id="part-category" class="form-select mb-3">
+            
+
+
+        </select>
+
+        <button id="btn-save-part" class="btn btn-success">Kaydet</button>
+    </div>
+
+    <div id="table-section">
+        
+
+
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        let currentPage = 1;
+
+            function loadParts(page = 1) {
+        $.get('/Admin/GetParts', { page }, function (response) {
+            let content = `
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Parça Adı</th>
+                                <th>Fiyat</th>
+                                <th>Stok</th>
+                                <th>Kategori</th>
+                                <th>Sil</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            response.data.forEach((item, index) => {
+                content += `
+                    <tr>
+                        <td>${(page - 1) * 5 + index + 1}</td>
+                        <td>${item.partName}</td>
+                        <td>${item.price}</td>
+                        <td>${item.stock}</td>
+                        <td>${item.categoryName}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm btn-delete" data-id="${item.id}">Sil</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            content += `
+                        </tbody>
+                    </table>
+                </div>
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        ${page > 1 ? `<li class="page-item"><button class="page-link btn-prev">Önceki</button></li>` : ''}
+                        <li class="page-item"><span class="page-link">Sayfa ${page} / ${response.totalPages}</span></li>
+                        ${page < response.totalPages ? `<li class="page-item"><button class="page-link btn-next">Sonraki</button></li>` : ''}
+                    </ul>
+                </nav>
+            `;
+            $('#table-section').html(content);
+
+            $('.btn-prev').click(function () {
+                loadParts(page - 1);
+            });
+
+            $('.btn-next').click(function () {
+                loadParts(page + 1);
+            });
+        });
+    }
+
+        function loadCategories() {
+            $.get('/Admin/GetCategories', function (categories) {
+                let options = '<option value="">Kategori Seç</option>';
+                categories.forEach(category => {
+                    options += `<option value="${category.id}">${category.name}</option>`;
+                });
+                $('#part-category').html(options);
+            });
+        }
+
+        $('#btn-add-part').click(function () {
+            $('#add-section').toggleClass('d-none');
+            loadCategories();
+        });
+
+        $('#btn-save-part').click(function () {
+            const data = {
+                partName: $('#part-name').val(),
+                price: $('#part-price').val(),
+                stock: $('#part-stock').val(),
+                categoryId: $('#part-category').val()
+            };
+
+            if (!data.partName || !data.price || !data.stock || !data.categoryId) {
+                alert('Tüm alanları doldurun.');
+                return;
+            }
+
+            $.post('/Admin/AddPart', data, function () {
+                alert('Parça başarıyla eklendi.');
+                $('#add-section').addClass('d-none');
+                loadParts(currentPage);
+            });
+        });
+
+        $('#btn-download-template').click(function () {
+             window.open('/Admin/DownloadTemplate', '_blank');                         
+             window.open('/Admin/DownloadCategories', '_blank');
+        });
+
+        $('#btn-upload-excel').click(function () {
+            $('#excel-file').click();
+        });
+
+        $('#excel-file').change(function () {
+        const file = this.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        $.ajax({
+            url: '/Admin/UploadExcel',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                alert(response); 
+                loadParts(); 
+            },
+            error: function (xhr) {
+                alert(xhr.responseText);
+            },
+            complete: function () {            
+            $('#excel-file').val('');
+        }
+        });
+    });
+       
+        loadParts();
+    });
+</script>

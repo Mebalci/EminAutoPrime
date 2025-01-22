@@ -1,0 +1,49 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Araç Silme Onayı";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-center align-items-center" style="height: 70vh;">
+        <div class="text-center p-4" style="border: 1px solid #ddd; border-radius: 8px; max-width: 500px; width: 100%;">
+            <h4 class="mb-3">Bu aracı silmek istediğinizden emin misiniz?</h4>
+            <div>
+                <button class="btn btn-success me-2 btn-delete" data-id="@ViewData["AracId"]">Sil</button>
+                <button class="btn btn-secondary btn-cancel">Vazgeç</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.btn-delete').click(function () {
+            const aracId = $(this).data('id');
+            if (confirm("Bu aracı silmek istediğinizden emin misiniz?")) {
+                $.ajax({
+                    url: '/Kullanici/AraciSil',
+                    type: 'POST',
+                    data: { aracId: aracId },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            window.location.href = response.redirectUrl; 
+                        } else {
+                            alert("Hata: " + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+                    }
+                });
+            }
+        });
+
+        $('.btn-cancel').click(function () {
+            window.location.href = '/Kullanici/GöstergePaneli';
+        });
+    });
+</script>
+
+

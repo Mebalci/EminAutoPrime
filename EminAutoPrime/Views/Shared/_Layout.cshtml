@@ -43,11 +43,11 @@
                                 }
                                 else if (User.IsInRole("Musteri"))
                                 {
-                                    <a href="/Müşteri/Index" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
+                                    <a href="/Kullanici/GöstergePaneli" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
                                 }
                                 else if (User.IsInRole("ServisCalisani"))
                                 {
-                                    <a href="/ServisCalisani/Index" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
+                                    <a href="/Servis/Index" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
                                 }
                                 <a href="#" class="dropdown-item"><i class="fas fa-comment-alt me-2"></i> Inbox</a>
                                 <a href="#" class="dropdown-item"><i class="fas fa-bell me-2"></i> Notifications</a>
@@ -85,6 +85,7 @@
                     <div class="dropdown d-lg-none">
                         <a href="#" class="dropdown-toggle nav-item nav-link" data-bs-toggle="dropdown">Panelim</a>
                         <div class="dropdown-menu rounded">
+                           
                             @if (User.Identity.IsAuthenticated)
                             {
                                 @if (User.IsInRole("Admin"))
@@ -93,11 +94,11 @@
                                 }
                                 else if (User.IsInRole("Musteri"))
                                 {
-                                    <a href="/Müşteri/Index" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
+                                    <a href="/Kullanici/GöstergePaneli" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
                                 }
                                 else if (User.IsInRole("ServisCalisani"))
                                 {
-                                    <a href="/ServisCalisani/Index" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
+                                    <a href="/Servis/Index" class="dropdown-item"><i class="fas fa-user-alt me-2"></i> Profilim</a>
                                 }
                                 <a href="#" class="dropdown-item"><i class="fas fa-comment-alt me-2"></i> Inbox</a>
                                 <a href="#" class="dropdown-item"><i class="fas fa-bell me-2"></i> Notifications</a>
@@ -160,6 +161,6 @@
     <script src="~/lib/lightbox/js/lightbox.min.js"></script>
     <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
     <script src="~/js/main.js"></script>
-    @RenderSection("Scripts", required: false)
+    @RenderSection("Scripts", required: false)   
 </body>
 </html>

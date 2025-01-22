@@ -1,0 +1,132 @@
+﻿@model IEnumerable<EminAutoPrime.Models.KullaniciAracViewModel>
+
+<style>
+    .vehicle-card {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        height: 100%;
+    }
+
+        .vehicle-card:hover {
+            transform: scale(1.02);
+        }
+
+    .vehicle-header {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: var(--bs-primary);
+        margin-bottom: 15px;
+    }
+
+    .vehicle-details {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
+    }
+
+    .btn-action {
+        margin-top: 15px;
+    }
+
+    .add-vehicle-btn {
+        background-color: var(--bs-primary);
+        color: white;
+        border: solid;
+        border-color: var(--bs-primary);
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+        .add-vehicle-btn:hover {
+            background-color: white;
+        }
+
+    h2.page-title {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: black;
+        text-align: left;
+        margin-bottom: 30px;
+    }
+    
+</style>
+
+<div class="container mb-3">
+    <h2 class="page-title">Araçlarım</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var arac in Model)
+            {
+                <div class="col-lg-6 col-md-12">
+                    <div class="vehicle-card">
+                        <div class="vehicle-details">
+                            <div class="vehicle-header">@arac.MarkaAdi @arac.ModelAdi</div>
+                            <p><strong>Plaka:</strong> @arac.Plaka</p>
+                            <p><strong>Yıl:</strong> @arac.Yil</p>
+                            <p class="servis-durumu @(arac.ServisDurumu == "Tamamlandı" ? "bg-danger text-white p-2" : arac.ServisDurumu == "Teslime Hazır" ? "bg-primary text-white p-2" : "")">
+                                <strong>Servis Durumu:</strong> @arac.ServisDurumu
+                            </p>
+                            <h6>Servis İşlemleri:</h6>
+                            <ul class="list-group">
+                                @foreach (var servis in arac.ServisIslemleri
+                               .GroupBy(si => si.ServisId)  
+                               .Select(g => g.OrderByDescending(si => si.IslemTarihi).FirstOrDefault())  
+                               .OrderByDescending(s => s.IslemTarihi)  
+                               .Take(3))  
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="text-muted">@servis.IslemTarihi.ToString("dd.MM.yyyy HH:mm"):</span>
+                                            <strong>@servis.IslemAciklama</strong>
+                                        </div>
+                                        <span class="badge bg-primary text-white">
+                                            Maliyet: @servis.IslemMaliyeti.ToString("N2") TL
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                            <button class="btn btn-danger btn-sm mt-2" onclick="window.location.href='/Kullanici/SilmeOnayla?aracId=@arac.AracId'">Sil</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <p class="text-muted text-center">Henüz kayıtlı aracınız bulunmamaktadır.</p>
+            </div>
+        }
+    </div>
+    <div class="text-center mt-5">
+        <a href="/Kullanici/AracEkle" class="add-vehicle-btn"><i class="fas fa-car"></i> Yeni Araç Ekle</a>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.btn-delete').off('click').on('click', function () {
+            const vehicleId = $(this).data('id');
+            if (confirm('Bu aracı silmek istediğinizden emin misiniz?')) {
+                $.post('/Kullanici/AraciSil', { aracId: vehicleId }, function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert('Hata: ' + response.message);
+                    }
+                }).fail(function () {
+                    alert('Bir hata oluştu. Lütfen tekrar deneyiniz.');
+                });
+            }
+        });
+    });
+</script>

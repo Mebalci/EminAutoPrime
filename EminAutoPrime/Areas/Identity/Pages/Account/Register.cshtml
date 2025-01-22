@@ -14,9 +14,15 @@
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Input.UserName" class="form-control"  placeholder="Ad Soyad" />
-                <label asp-for="Input.UserName">Ad Soyad</label>
+                <input asp-for="Input.KullaniciAdi" class="form-control"  placeholder="Ad" />
+                <label asp-for="Input.KullaniciAdi">Ad</label>
                 
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.KullaniciSoyAdi" class="form-control" placeholder="Soyad" />
+                <label asp-for="Input.KullaniciSoyAdi">Soyad</label>
+
             </div>
 
             <div class="form-floating mb-3">

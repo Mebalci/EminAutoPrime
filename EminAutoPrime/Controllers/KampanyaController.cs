@@ -124,21 +124,18 @@ namespace EminAutoPrime.Controllers
                 return NotFound();
             }
             try
-            {
-                // Mevcut kampanya kaydını al
+            {                
                 var existingKampanya = await _context.Kampanyalar.FindAsync(id);
                 if (existingKampanya == null)
                 {
                     return NotFound();
                 }
-
-                // Alanları güncelle
+                
                 existingKampanya.KampanyaBasligi = kampanya.KampanyaBasligi;
                 existingKampanya.KampanyaAciklamasi = kampanya.KampanyaAciklamasi;
                 existingKampanya.BaslangicTarihi = kampanya.BaslangicTarihi;
                 existingKampanya.BitisTarihi = kampanya.BitisTarihi;
-
-                // Yeni bir resim yüklenmişse, resmi güncelle
+                                
                 if (resimDosyasi != null && resimDosyasi.Length > 0)
                 {
                     using (var memoryStream = new MemoryStream())
@@ -147,8 +144,7 @@ namespace EminAutoPrime.Controllers
                         existingKampanya.GorselVerisi = memoryStream.ToArray();
                     }
                 }
-
-                // Veritabanında güncelle
+                                
                 _context.Update(existingKampanya);
                 await _context.SaveChangesAsync();
 

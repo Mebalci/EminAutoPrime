@@ -1,0 +1,111 @@
+﻿
+<style>     
+    .sidebar {
+        background-color: #f8f9fa; 
+        border-radius: 5px;
+        padding: 10px;
+        padding-bottom:20px;
+        height: 80%;
+        position: sticky;
+        top: 200px; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    }
+
+    .sidebar-header {
+        background-color: var(--bs-primary); 
+        color: white;
+        text-align: center;
+        padding: 15px; 
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 15px; 
+    }
+
+    .nav-link-k {
+        transition: all 0.3s ease; 
+        border-radius: 5px;
+        padding: 10px 15px; 
+        color: #495057; 
+        font-weight: 500;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+    }
+            
+        .nav-link-k:hover {
+            background-color: var(--bs-primary);
+            color: white; 
+        }
+                
+        .nav-link-k.active {
+            background-color: var(--bs-primary);
+            color: white; 
+            box-shadow: 0 0 5px ; 
+        }
+              
+        .nav-link-k i {
+            margin-right: 8px;
+        }
+</style>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        Hoş Geldin @User.Identity.Name
+    </div>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link-k sidebar-link @((ViewData["ActivePage"] as string) == "GöstergePaneli" ? "active" : "")"
+               data-url="/Kullanici/GöstergePaneli">
+                <i class="fas fa-home"></i> Gösterge Paneli
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link-k sidebar-link @((ViewData["ActivePage"] as string) == "Araclar" ? "active" : "")"
+               data-url="/Kullanici/Araclar">
+                <i class="fas fa-car"></i> Araçlar
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link-k sidebar-link @((ViewData["ActivePage"] as string) == "Randevular" ? "active" : "")"
+               data-url="/Kullanici/Randevular">
+                <i class="fas fa-calendar-alt"></i> Randevular
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link-k sidebar-link @((ViewData["ActivePage"] as string) == "Yorumlar" ? "active" : "")"
+               data-url="/Kullanici/Yorumlar">
+                <i class="fas fa-calendar-alt"></i> Yorumlar
+            </a>
+        </li>
+    </ul>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const contentArea = document.getElementById('content-area');
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                const url = link.getAttribute('data-url');
+                                
+                sidebarLinks.forEach(link => link.classList.remove('active'));
+
+                fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                    .then(response => response.text())
+                    .then(html => {
+                        contentArea.innerHTML = html;
+                        
+                        link.classList.add('active');
+                    })
+                    .catch(err => console.error('Hata:', err));
+            });
+        });
+    });
+</script>

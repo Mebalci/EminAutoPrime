@@ -1,0 +1,54 @@
+﻿@model EminAutoPrime.Models.RandevuTabViewModel
+<style>
+    .add-vehicle-btn {
+        background-color: var(--bs-primary);
+        color: white;
+        border: solid;
+        border-color: var(--bs-primary);
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+        
+    }
+
+        .add-vehicle-btn:hover {
+            background-color: white;
+            color: var(--bs-primary);
+        }
+
+    h2.page-title {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: black;
+        text-align: left;
+        margin-bottom: 30px;
+    }
+</style>
+
+<div>
+    <h2 class="page-title">Randevularım</h2>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#yaklasan">Yaklaşan Randevular</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tamamlanan">Tamamlanan Randevular</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-5">
+        <div class="tab-pane fade show active" id="yaklasan">
+            @await Html.PartialAsync("_RandevuListesi", Model.YaklasanRandevular)
+        </div>
+        <div class="tab-pane fade" id="tamamlanan">
+            @await Html.PartialAsync("_RandevuListesi", Model.TamamlananRandevular)
+        </div>
+    </div>
+
+    <div class="mt-4 mb-4 text-center">
+        <a class="add-vehicle-btn mt-2 mb-2" href="/Kullanici/RandevuAl">Yeni Randevu Talebi</a>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>

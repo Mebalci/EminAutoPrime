@@ -1,0 +1,215 @@
+﻿@{
+    ViewData["Title"] = "Araçlar Yönetimi";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+
+<style>
+    .btn-group-custom {
+        gap: 10px;
+    }
+
+    .btn-custom {
+        background-color: var(--bs-primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px 0;
+        font-size: 16px;
+        width: calc(50% - 10px);
+        text-align: center;
+        cursor: pointer;
+        flex: 1 1 calc(50% - 10px);
+    }
+
+        .btn-custom i {
+            margin-right: 5px;
+        }
+
+    .form-section {
+        margin-top: 20px;
+    }
+
+    .table {
+        margin-top: 15px;
+    }
+
+        .table th {
+            background-color: var(--bs-primary);
+            color: white;
+            text-align: center;
+        }
+
+        .table td {
+            text-align: center;
+        }
+
+    .pagination {
+        margin-top: 15px;
+    }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+</style>
+
+<div class="container py-5">
+    <h3 class="mb-4">Araç Yönetimi</h3>
+
+    <div class="d-flex justify-content-between align-items-center btn-group-custom mb-3">
+        <button id="btn-markalar" class="btn btn-custom mx-2"><i class="fas fa-list"></i> Markalar</button>
+        <button id="btn-modeller" class="btn btn-custom mx-2"><i class="fas fa-shapes"></i> Modeller</button>
+        <input type="text" id="search-input" class="form-control w-25" placeholder="Ara...">
+    </div>
+
+    
+    <div id="table-section">
+        <!-- Dinamik tablo buraya yüklenecek -->
+    </div>
+
+    <div id="add-section" class="form-section d-none">
+        <h4 id="add-section-title">Ekleme Alanı</h4>
+        <input type="text" id="add-input" class="form-control mb-3" placeholder="Adı Girin">
+        <select id="add-select" class="form-select mb-3 d-none"></select>
+        <button id="btn-save" class="btn btn-success">Kaydet</button>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        let currentPage = 1;
+        let currentType = 'marka'; // Varsayılan olarak 'marka' sekmesi açık
+
+        // Tablo Verilerini Yükleme
+        function loadData(type, page = 1, search = '') {
+            const url = type === 'marka' ? '/Admin/GetMarkalar' : '/Admin/GetModeller';
+            $.get(url, { page, search }, function (response) {
+                let content = `
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>${type === 'marka' ? 'Marka Adı' : 'Model Adı'}</th>
+                                    ${type === 'model' ? '<th>Bağlı Marka</th>' : ''}
+                                    <th>Sil</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                response.data.forEach((item, index) => {
+                    content += `
+                        <tr>
+                            <td>${(page - 1) * 5 + index + 1}</td>
+                            <td>${type === 'marka' ? item.markaAdi : item.modelAdi}</td>
+                            ${type === 'model' ? `<td>${item.markaAdi}</td>` : ''}
+                            <td>
+                                <button class="btn btn-danger btn-sm btn-delete" data-id="${item.id}" data-type="${type}">Sil</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                content += `
+                        </tbody>
+                        </table>
+                    </div>
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            ${page > 1 ? `<li class="page-item"><button class="page-link btn-prev">Önceki</button></li>` : ''}
+                            <li class="page-item"><span class="page-link">Sayfa ${page}</span></li>
+                            ${response.data.length === 5 ? `<li class="page-item"><button class="page-link btn-next">Sonraki</button></li>` : ''}
+                        </ul>
+                    </nav>
+                `;
+                $('#table-section').html(content);
+            });
+        }
+
+        // Ekleme Alanını Göster
+        $('#btn-markalar, #btn-modeller').click(function () {
+            currentType = $(this).attr('id') === 'btn-markalar' ? 'marka' : 'model';
+            currentPage = 1;
+
+            // Ekleme Alanı Görünürlüğü
+            $('#add-section').removeClass('d-none');
+            $('#add-section-title').text(currentType === 'marka' ? 'Yeni Marka Ekle' : 'Yeni Model Ekle');
+
+            // Marka seçme alanını yalnızca model ekleme için göster
+            if (currentType === 'model') {
+                $('#add-select').removeClass('d-none');
+                $.get('/Admin/GetMarkalarEkleme', function (markalar) {
+                    let options = '<option value="">Marka Seç</option>';
+                    markalar.forEach(marka => {
+                        options += `<option value="${marka.id}">${marka.markaAdi}</option>`;
+                    });
+                    $('#add-select').html(options);
+                });
+            } else {
+                $('#add-select').addClass('d-none');
+            }
+
+            loadData(currentType, currentPage);
+        });
+
+        // Veri Kaydetme
+        $('#btn-save').click(function () {
+            const data = currentType === 'marka'
+                ? { markaAdi: $('#add-input').val() }
+                : { markaId: $('#add-select').val(), modelAdi: $('#add-input').val() };
+
+            const url = currentType === 'marka' ? '/Admin/AddMarka' : '/Admin/AddModel';
+
+            if (currentType === 'model' && !data.markaId) {
+                alert('Lütfen bir marka seçin.');
+                return;
+            }
+
+            if (!data.markaAdi && !data.modelAdi) {
+                alert('Ad alanını doldurun.');
+                return;
+            }
+
+            $.post(url, data, function () {
+                alert(`${currentType === 'marka' ? 'Marka' : 'Model'} başarıyla eklendi.`);
+                $('#add-input').val('');
+                loadData(currentType, currentPage);
+            });
+        });
+
+        // Silme İşlemi
+        $(document).on('click', '.btn-delete', function () {
+            const id = $(this).data('id');
+            const type = $(this).data('type');
+            const url = type === 'marka' ? '/Admin/DeleteMarka' : '/Admin/DeleteModel';
+            if (confirm(`${type === 'marka' ? 'Marka' : 'Model'} silmek istediğinizden emin misiniz?`)) {
+                $.post(url, { id }, function () {
+                    alert(`${type === 'marka' ? 'Marka' : 'Model'} başarıyla silindi.`);
+                    loadData(currentType, currentPage);
+                });
+            }
+        });
+
+        // Sayfa Geçişleri
+        $(document).on('click', '.btn-prev', function () {
+            if (currentPage > 1) {
+                currentPage--;
+                loadData(currentType, currentPage, $('#search-input').val());
+            }
+        });
+
+        $(document).on('click', '.btn-next', function () {
+            currentPage++;
+            loadData(currentType, currentPage, $('#search-input').val());
+        });
+
+        // Arama İşlemi
+        $('#search-input').on('input', function () {
+            loadData(currentType, 1, $(this).val());
+        });
+
+        // İlk Yükleme
+        $('#btn-markalar').click(); // Varsayılan olarak markalar yüklenir
+    });
+</script>
+

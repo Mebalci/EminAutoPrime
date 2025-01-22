@@ -6,7 +6,13 @@
 }
 
 <style>
+    .btn-group-custom {
+        gap: 0; 
+    }
+
     .btn-custom {
+        flex: 1; 
+        text-align: center;
         background-color: var(--bs-primary);
         border: none;
         color: white;
@@ -33,14 +39,14 @@
 </style>
 
 <div class="container py-5">
-    <div class="d-flex flex-wrap justify-content-between btn-group-custom mb-1">
-        <button class="btn btn-custom" id="btn-vehicles"><i class="fas fa-car"></i> Araçlar</button>
-        <button class="btn btn-custom" id="btn-comments"><i class="fas fa-comments"></i> Yorumlar</button>
-        <button class="btn btn-custom" id="btn-info"><i class="fas fa-info-circle"></i> Bilgiler</button>
-        <button class="btn btn-custom" id="btn-appointments"><i class="fas fa-calendar-alt"></i> Randevular</button>
+    <div class="d-flex flex-wrap justify-content-between btn-group-custom mb-3">
+        <button class="btn btn-custom mx-2" id="btn-vehicles"><i class="fas fa-car"></i> Araçlar</button>
+        <button class="btn btn-custom mx-2" id="btn-comments"><i class="fas fa-comments"></i> Yorumlar</button>
+        <button class="btn btn-custom mx-2" id="btn-info"><i class="fas fa-info-circle"></i> Bilgiler</button>
+        <button class="btn btn-custom mx-2" id="btn-appointments"><i class="fas fa-calendar-alt"></i> Randevular</button>
     </div>
 
-    <!-- User Details -->
+
     <div id="user-details" class="card shadow mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Kullanıcı Bilgileri</h5>
@@ -49,28 +55,35 @@
             <form id="user-details-form">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="name" class="form-label">Ad Soyad</label>
-                        <input type="text" id="name" class="form-control" value="@Model.Name">
+                        <label for="ad" class="form-label">Ad</label>
+                        <input type="text" id="ad" class="form-control" value="@Model.Ad" pattern="[a-zA-ZçÇğĞıİöÖşŞüÜ]+" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ad" class="form-label">Soyad</label>
+                        <input type="text" id="soyad" class="form-control" value="@Model.Soyad" pattern="[a-zA-ZçÇğĞıİöÖşŞüÜ]+" required>
                     </div>
                     <div class="col-md-6">
                         <label for="email" class="form-label">E-posta</label>
-                        <input type="email" id="email" class="form-control" value="@Model.Email">
+                        <input type="email" id="email" class="form-control" value="@Model.Email" pattern="^[^çÇğĞıİöÖşŞüÜ\s]+[^\s]+$" required>
                     </div>
                     <div class="col-md-6">
                         <label for="phone" class="form-label">Telefon</label>
-                        <input type="text" id="phone" class="form-control" value="@Model.PhoneNumber">
+                        <input type="text" id="phone" class="form-control" value="@Model.PhoneNumber" pattern="\d{10,11}" maxlength="11" required>
                     </div>
                     <div class="col-md-6">
                         <label for="roles" class="form-label">Roller</label>
-                        <select id="roles" name="Role" class="form-select">
-                           
+                        <select id="roles" name="Role" class="form-select">                            
+                            <option selected>@Model.SelectedRole</option>
+                        @foreach (var role in Model.Roles)
+                        {                         
+                            <option value="@role" >@role</option>
+                        }
                         </select>
                     </div>
-
-
                 </div>
                 <div class="text-end mt-3">
                     <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
+                    <button type="button" class="btn btn-danger" id="btn-delete-user">Kullanıcıyı Sil</button>
                 </div>
             </form>
         </div>
@@ -79,18 +92,17 @@
     
     <div id="dynamic-content" class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Araçlar</h5>
+            <h5 class="mb-0" id="dynamic-header">Detay</h5>
         </div>
-        <div class="card-body">
-            <ul id="vehicle-list" class="list-group">
-                
-            </ul>
+        <div class="card-body" id="dynamic-body">
+            
+            
         </div>
     </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     $(document).ready(function () {
         
@@ -99,7 +111,8 @@
 
             const updatedData = {
                 userId: "@Model.UserId",
-                name: $("#name").val(),
+                firstname: $("#ad").val(),
+                lastname: $("#soyad").val(),
                 email: $("#email").val(),
                 phone: $("#phone").val(),
                 role: $("#roles").val()
@@ -117,31 +130,87 @@
                 }
             });
         });
-        
-        $("#btn-vehicles").click(function () {
-            $.ajax({
-                url: "/Admin/GetUserVehicles",
-                type: "GET",
-                data: { userId: "@Model.UserId" },
-                    success: function (response) {
-                    let vehicleList = response.map(vehicle => `
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">${vehicle.markaAdi} - ${vehicle.modelAdi}</h5>
-                                <p class="card-text">
-                                    <strong>Plaka:</strong> ${vehicle.plaka}<br>
-                                    <strong>Yıl:</strong> ${vehicle.yil}
-                                </p>
-                            </div>
-                        </div>
-                    `).join("");
 
-                    $("#vehicle-list").html(vehicleList);
+            $("#btn-delete-user").click(function () {
+        if (confirm("Bu kullanıcıyı silmek istediğinize emin misiniz?")) {
+            $.ajax({
+                url: "/Admin/DeleteUser",
+                type: "POST",
+                data: { userId: "@Model.UserId" },
+                success: function () {
+                    alert("Kullanıcı başarıyla silindi.");
+                    window.location.href = "/Admin/MusteriYonetimi"; 
                 },
                 error: function () {
-                    alert("Araç bilgileri yüklenemedi.");
+                    alert("Kullanıcı silinirken bir hata oluştu.");
                 }
             });
+        }
+    });
+        
+        function loadContent(url, params, headerText) {
+            $("#dynamic-header").text(headerText);
+            $.ajax({
+                url: url,
+                type: "GET",
+                data: params,
+                success: function (response) {
+                    let content = "";
+                    if (url === "/Admin/GetUserVehicles") {
+                        content = response.map(vehicle => `
+                            <div class="card mb-3 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">${vehicle.markaAdi} - ${vehicle.modelAdi}</h5>
+                                    <p class="card-text">
+                                        <strong>Plaka:</strong> ${vehicle.plaka}<br>
+                                        <strong>Yıl:</strong> ${vehicle.yil}
+                                    </p>
+                                </div>
+                            </div>
+                        `).join("");
+                    } else if (url === "/Admin/GetUserComments") {
+                        content = response.map(comment => `
+                            <div class="card mb-3 shadow-sm">
+                                <div class="card-body">
+                                    <p class="card-text">${comment.text}</p>
+                                    <small class="text-muted">Gönderen: ${comment.user}</small>
+                                </div>
+                            </div>
+                        `).join("");
+                    } else if (url === "/Admin/GetUserAppointments") {
+                        content = response.map(appointment => `
+                            <div class="card mb-3 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">${appointment.date}</h5>
+                                    <p class="card-text">${appointment.details}</p>
+                                </div>
+                            </div>
+                        `).join("");
+                    }
+
+                    $("#dynamic-body").html(content);
+                },
+                error: function () {
+                    $("#dynamic-body").html("<p class='text-danger'>Bilgi yüklenirken bir hata oluştu.</p>");
+                }
+            });
+        }
+
+        $("#btn-vehicles").click(function () {
+            loadContent("/Admin/GetUserVehicles", { userId: "@Model.UserId" }, "Araçlar");
         });
+
+        $("#btn-comments").click(function () {
+            loadContent("/Admin/GetUserComments", { userId: "@Model.UserId" }, "Yorumlar");
+        });
+
+        $("#btn-info").click(function () {
+            loadContent("/Admin/GetUserInfo", { userId: "@Model.UserId" }, "Bilgiler");
+        });
+
+        $("#btn-appointments").click(function () {
+            loadContent("/Admin/GetUserAppointments", { userId: "@Model.UserId" }, "Randevular");
+        });
+
     });
 </script>

@@ -1,0 +1,140 @@
+﻿@model EminAutoPrime.Models.RandevuAlViewModel
+
+<style>
+    .service-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+        }
+
+    .service-card-icon {
+        font-size: 2rem;
+        color: var(--bs-primary);
+    }
+
+    .service-card-title {
+        font-weight: bold;
+        margin-top: 10px;
+        color: #343a40;
+    }
+
+    .service-card-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .add-vehicle-btn {
+        background-color: var(--bs-primary);
+        color: white;
+        border: 2px solid var(--bs-primary);
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .add-vehicle-btn:hover {
+            background-color: white;
+            color: var(--bs-primary);
+        }
+</style>
+
+<div class="container" style="margin-top: 100px;">
+    <h3 class="text-center">Servis Hizmetleri</h3>
+    <div class="row mt-4">
+        @foreach (var servis in Model.ServisAlanlari)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card service-card p-3 text-center">
+                    <i class="service-card-icon bi bi-tools"></i>
+                    <h5 class="service-card-title">@servis.Text</h5>
+                    <p class="service-card-description">Emin Auto Prime Güvenilir Servis Hizmeti</p>
+                    <button class="btn add-vehicle-btn mt-3" data-bs-toggle="modal" data-bs-target="#randevuModal" data-servis-id="@servis.Value">
+                        Hemen Randevu Al
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="randevuModal" tabindex="-1" aria-labelledby="randevuModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="randevuModalLabel">Yeni Randevu Talebi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="randevuForm">
+                    <div class="mb-3">
+                        <label for="AracId" class="form-label">Araç Seç</label>
+                        <select id="AracId" name="AracId" class="form-select" required>
+                            <option value="">Araç Seçiniz</option>
+                            @if (ViewBag.Araclar != null)
+                            {
+                                foreach (var arac in ViewBag.Araclar as List<SelectListItem>)
+                                {
+                                    <option value="@arac.Value">@arac.Text</option>
+                                }
+                            }
+                            else
+                            {
+                                <option disabled>Henüz kayıtlı aracınız yok.</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="RandevuTarihi" class="form-label">Randevu Tarihi</label>
+                        <input type="datetime-local" id="RandevuTarihi" name="RandevuTarihi" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Aciklama" class="form-label">Açıklama</label>
+                        <textarea id="Aciklama" name="Aciklama" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <input type="hidden" id="SeciliServisAlaniId" name="SeciliServisAlaniId" />
+                    <div class="text-center">
+                        <button type="submit" class="btn add-vehicle-btn">Talebi Gönder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#randevuModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const servisId = button.data('servis-id');
+            $('#SeciliServisAlaniId').val(servisId);
+        });
+
+        $('#randevuForm').submit(function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '/Kullanici/RandevuAl',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    alert(response.message);
+                    if (response.success) {
+                        $('#randevuModal').modal('hide');
+                        window.location.href = '/Kullanici/GöstergePaneli';
+                    }
+                },
+                error: function () {
+                    alert('Bir hata oluştu, lütfen tekrar deneyiniz.');
+                }
+            });
+        });
+    });
+</script>
